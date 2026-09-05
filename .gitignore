@@ -4,6 +4,7 @@
 !.env.example
 .vercel
 node_modules/
+.hero-check/
 
 # Claude Design runtime — not needed on Vercel
 _ds/
