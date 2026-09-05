@@ -1,0 +1,12 @@
+.DS_Store
+.env
+.env.*
+.vercel
+node_modules/
+
+# Claude Design runtime — not needed on Vercel
+_ds/
+support.js
+image-slot.js
+uploads/
+Yglesia Landing.dc.html
