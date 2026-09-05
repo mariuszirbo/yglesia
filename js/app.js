@@ -6,56 +6,19 @@ const CHIPS = [
   "I'm a missionary abroad",
 ];
 
-const FOLLOWUPS = [
-  "Who would stand behind the bar with you?",
-  "What city are you thinking about?",
-];
-
-const TRACKS = [
-  {
-    keys: ["shop", "owner", "already run", "cafe", "café"],
-    kicker: "Where you fit",
-    track: "Owner track — team training",
-    person: "Dani, owner coach",
-    why: "The first call covers your current bar, the team you already have, and a weekly rhythm that turns regulars into relationships without burning people out.",
-  },
-  {
-    keys: ["barista", "own bar", "open"],
-    kicker: "Where you fit",
-    track: "Barista track — open a shop",
-    person: "Sam, startup coach",
-    why: "We start with a small-shop plan: numbers, site, and a sending community so you are not inventing the business alone.",
-  },
-  {
-    keys: ["church", "pastor", "congregation", "parish"],
-    kicker: "Where you fit",
-    track: "Church track — a daily door",
-    person: "Leah, church partner",
-    why: "The first call is a feasibility check: neighbourhood, funding, and whether a shop would serve your people or stretch them thin.",
-  },
-  {
-    keys: ["mission", "abroad", "field", "overseas"],
-    kicker: "Where you fit",
-    track: "Field track — income and presence",
-    person: "Jonas, field coach",
-    why: "We walk through a revenue model that can sit beside support, and a shop that gives local people a normal reason to keep talking with you.",
-  },
-];
-
-const FALLBACK = {
-  kicker: "Where you fit",
-  track: "A first conversation",
-  person: "us",
-  why: "Tell us a little more on the call. We will match you with the person who has sat in a similar place, rather than sending you through a form.",
-};
-
-const LIMIT = 3;
+function newSession() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return "s-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+}
 
 const state = {
+  sessionId: newSession(),
   turns: [{ q: OPENER, a: "" }],
   draft: "",
   thinking: false,
   result: null,
+  failed: false,
+  chips: CHIPS,
 };
 
 const els = {
@@ -69,12 +32,8 @@ const els = {
   resultTrack: document.getElementById("result-track"),
   resultWhy: document.getElementById("result-why"),
   resultBook: document.getElementById("book"),
+  fail: document.getElementById("fail"),
 };
-
-function pickTrack(text) {
-  const hay = text.toLowerCase();
-  return TRACKS.find((t) => t.keys.some((k) => hay.includes(k))) || FALLBACK;
-}
 
 function render() {
   els.turns.innerHTML = state.turns
@@ -86,21 +45,25 @@ function render() {
     )
     .join("");
 
-  const asking = !state.result && !state.thinking;
+  const asking = !state.result && !state.thinking && !state.failed;
   const first = state.turns.length === 1 && !state.turns[0].a;
+  const chips = first ? CHIPS : state.chips;
 
   els.thinking.classList.toggle("hidden", !state.thinking);
   els.ask.classList.toggle("hidden", !asking);
   els.result.classList.toggle("hidden", !state.result);
+  els.fail.classList.toggle("hidden", !state.failed);
 
-  if (first) {
+  if (asking && chips && chips.length) {
     els.chips.classList.remove("hidden");
-    els.chips.innerHTML = CHIPS.map(
-      (label) =>
-        `<button type="button" class="tag tag-outline" data-chip="${escapeAttr(
-          label
-        )}">${escapeHtml(label)}</button>`
-    ).join("");
+    els.chips.innerHTML = chips
+      .map(
+        (label) =>
+          `<button type="button" class="tag tag-outline" data-chip="${escapeAttr(
+            label
+          )}">${escapeHtml(label)}</button>`
+      )
+      .join("");
   } else {
     els.chips.classList.add("hidden");
     els.chips.innerHTML = "";
@@ -111,15 +74,15 @@ function render() {
     els.resultTrack.textContent = state.result.track;
     els.resultWhy.textContent = state.result.why;
     els.resultBook.textContent = "Book a call with " + state.result.person;
+    const subject = "Yglesia — book a call";
     els.resultBook.href =
-      "mailto:hello@yglesia.com?subject=" +
-      encodeURIComponent("Yglesia — book a call");
+      "mailto:hello@yglesia.com?subject=" + encodeURIComponent(subject);
   }
 
   els.draft.value = state.draft;
 }
 
-function send(text) {
+async function send(text) {
   const answer = (text ?? state.draft).trim();
   if (!answer || state.thinking) return;
   state.turns = state.turns.map((t, i) =>
@@ -127,23 +90,35 @@ function send(text) {
   );
   state.draft = "";
   state.thinking = true;
+  state.failed = false;
+  state.chips = null;
   render();
 
-  window.setTimeout(() => {
-    const asked = state.turns.length;
-    if (asked >= LIMIT) {
-      const transcript = state.turns.map((t) => t.a).join(" ");
-      state.result = pickTrack(transcript);
-      state.thinking = false;
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: state.sessionId,
+        turns: state.turns,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "request failed");
+    if (data.done && data.result) {
+      state.result = data.result;
+    } else if (data.question) {
+      state.turns = [...state.turns, { q: data.question, a: "" }];
+      state.chips = Array.isArray(data.chips) ? data.chips : null;
     } else {
-      state.turns = [
-        ...state.turns,
-        { q: FOLLOWUPS[asked - 1] || FOLLOWUPS[0], a: "" },
-      ];
-      state.thinking = false;
+      throw new Error("empty reply");
     }
-    render();
-  }, 420);
+  } catch (err) {
+    console.error(err);
+    state.failed = true;
+  }
+  state.thinking = false;
+  render();
 }
 
 function escapeHtml(s) {
@@ -173,10 +148,13 @@ els.chips.addEventListener("click", (e) => {
   if (btn) send(btn.getAttribute("data-chip"));
 });
 document.getElementById("reset").addEventListener("click", () => {
+  state.sessionId = newSession();
   state.turns = [{ q: OPENER, a: "" }];
   state.draft = "";
   state.thinking = false;
   state.result = null;
+  state.failed = false;
+  state.chips = CHIPS;
   render();
   els.draft.focus();
 });

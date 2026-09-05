@@ -353,6 +353,14 @@ a:hover {
   max-width: 46ch;
 }
 
+.note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-neutral-700);
+  max-width: 46ch;
+}
+
 .paths {
   padding-top: clamp(70px, 11vw, 130px);
 }
