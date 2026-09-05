@@ -343,7 +343,8 @@ a:hover {
 
 .turn {
   display: grid;
-  gap: 12px;
+  gap: 8px;
+  margin-bottom: 28px;
 }
 
 .turn q,
@@ -368,6 +369,16 @@ a:hover {
   font-weight: 400;
   color: var(--color-accent-700);
   max-width: 52ch;
+}
+
+.turn .a-who {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-neutral-700);
+  margin-right: 8px;
 }
 
 .thinking {

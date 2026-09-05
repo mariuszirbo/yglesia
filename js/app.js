@@ -1,4 +1,4 @@
-const OPENER = "Where are you, and what are you trying to start?";
+const OPENER = "Which of these is you: shop owner, barista, church, or missionary?";
 const CHIPS = [
   "I already run a coffee shop",
   "I'm a barista who wants my own bar",
@@ -40,7 +40,9 @@ function render() {
     .map(
       (t) =>
         `<div class="turn"><p class="q">${escapeHtml(t.q)}</p>${
-          t.a ? `<p class="a">${escapeHtml(t.a)}</p>` : ""
+          t.a
+            ? `<p class="a"><span class="a-who">You</span> ${escapeHtml(t.a)}</p>`
+            : ""
         }</div>`
     )
     .join("");
