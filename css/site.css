@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap");
 
 :root {
   --color-bg: #f3f2f2;
@@ -20,6 +20,8 @@
   --font-heading: "Source Serif 4", Georgia, serif;
   --font-heading-weight: 600;
   --font-body: "Source Serif 4", Georgia, serif;
+  --font-chat-ask: "Source Serif 4", Georgia, serif;
+  --font-chat-say: "Source Sans 3", system-ui, sans-serif;
 
   --radius-md: 2px;
 }
@@ -276,7 +278,33 @@ a:hover {
 }
 
 .intake {
-  padding-top: clamp(60px, 9vw, 110px);
+  padding-top: clamp(48px, 7vw, 88px);
+}
+
+.chat-frame {
+  max-width: 760px;
+  padding: clamp(22px, 3.5vw, 36px) clamp(18px, 3vw, 32px) clamp(24px, 3.5vw, 40px);
+  border-top: 5px solid var(--color-text);
+  border-bottom: 1px solid var(--color-text);
+  background: color-mix(in srgb, var(--color-surface) 70%, var(--color-bg));
+}
+
+.chat-frame .kicker,
+.chat-frame .kicker-mute,
+.chat-frame .thinking,
+.chat-frame .note,
+.chat-frame .fail,
+.chat-frame .a,
+.chat-frame .ask-row input,
+.chat-frame .tag,
+.chat-frame .btn,
+.chat-frame .result-why {
+  font-family: var(--font-chat-say);
+}
+
+.chat-frame .q,
+.chat-frame .result-track {
+  font-family: var(--font-chat-ask);
 }
 
 .intake-head {
@@ -285,6 +313,11 @@ a:hover {
   gap: 14px;
   flex-wrap: wrap;
   margin-bottom: clamp(24px, 3vw, 38px);
+}
+
+.intake-head .kicker,
+.intake-head .kicker-mute {
+  font-weight: 600;
 }
 
 .kicker {
@@ -328,9 +361,11 @@ a:hover {
 
 .turn .a {
   margin: 0;
-  font-size: 18px;
+  font-family: var(--font-chat-say);
+  font-size: 17px;
   line-height: 1.5;
   font-style: italic;
+  font-weight: 400;
   color: var(--color-accent-700);
   max-width: 52ch;
 }
@@ -361,8 +396,8 @@ a:hover {
   min-width: 0;
   border: 0;
   background: transparent;
-  font-family: var(--font-body);
-  font-size: 19px;
+  font-family: var(--font-chat-say);
+  font-size: 18px;
   color: var(--color-text);
   padding: 6px 0;
   outline: none;
@@ -550,6 +585,13 @@ a:hover {
 
 .tag-outline:hover {
   background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+.chat-frame .btn,
+.chat-frame .tag {
+  font-family: var(--font-chat-say);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .hidden {
