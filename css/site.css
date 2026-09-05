@@ -190,6 +190,15 @@ a:hover {
   padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 20px));
 }
 
+.hero-copy-plate {
+  width: fit-content;
+  max-width: 100%;
+  padding: clamp(14px, 2vw, 22px) clamp(16px, 2.4vw, 28px);
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 .hero-copy h1 {
   font-family: var(--font-heading);
   font-weight: 600;
@@ -199,7 +208,6 @@ a:hover {
   margin: 0;
   max-width: 16ch;
   text-wrap: pretty;
-  text-shadow: 0 1px 0 color-mix(in srgb, var(--color-bg) 55%, transparent);
 }
 
 .hero-copy p {
