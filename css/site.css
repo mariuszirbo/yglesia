@@ -91,22 +91,31 @@ a:hover {
   position: relative;
   z-index: 2;
   background: var(--color-bg);
-  padding-top: 28px;
+  padding-top: max(16px, env(safe-area-inset-top, 0px));
 }
 
 .mast-row {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 30px;
-  flex-wrap: wrap;
+  gap: 12px 24px;
+  flex-wrap: nowrap;
   padding-bottom: 14px;
 }
 
 .mark {
-  height: clamp(26px, 4vw, 38px);
+  height: clamp(22px, 4vw, 38px);
   width: auto;
+  aspect-ratio: 335 / 61;
+  max-width: min(180px, 48vw);
+  flex: 0 1 auto;
   display: block;
+}
+
+.mast-row a {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 0.95rem;
 }
 
 .mast-rule {
@@ -117,7 +126,7 @@ a:hover {
 .mast-meta {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: 8px 20px;
   padding: 7px 0;
   font-size: 12.5px;
   letter-spacing: 0.09em;
@@ -130,17 +139,13 @@ a:hover {
   background: var(--color-text);
 }
 
-/* Portrait clip is 9:16. The old hero was capped at 900px, so most of
-   the footage was cropped away. This section is at least a full screen
-   and grows toward the video’s own proportions so much more of it shows. */
+/* One visible screen under the mast — not taller than the phone chrome.
+   Portrait 9:16 clip: frame the people, not the ceiling. */
 .hero {
   position: relative;
   z-index: 1;
-  margin-top: clamp(24px, 3vw, 40px);
-  /* Portrait 9:16 clip. Old design capped this at 900px and cropped most of
-     the footage. Keep at least a full screen, then grow toward the video’s
-     own height so much more of it stays in view as you scroll. */
-  min-height: max(118svh, min(190vh, calc(100vw * 16 / 9)));
+  margin-top: clamp(16px, 2.5vw, 32px);
+  min-height: calc(100dvh - 9rem);
   display: grid;
   align-items: end;
   overflow: hidden;
@@ -157,13 +162,9 @@ a:hover {
 .hero-video video {
   display: block;
   position: absolute;
-  left: 50%;
-  top: 0;
+  inset: 0;
   width: 100%;
-  height: 130%;
-  min-width: 100%;
-  min-height: 130%;
-  transform: translateX(-50%);
+  height: 100%;
   object-fit: cover;
   object-position: 50% 12%;
 }
@@ -173,38 +174,98 @@ a:hover {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
-    to top,
-    var(--color-bg) 0%,
-    color-mix(in srgb, var(--color-bg) 55%, transparent) 18%,
-    color-mix(in srgb, var(--color-bg) 18%, transparent) 42%,
-    transparent 68%
-  );
+  background:
+    linear-gradient(
+      to top,
+      var(--color-bg) 0%,
+      color-mix(in srgb, var(--color-bg) 92%, transparent) 18%,
+      color-mix(in srgb, var(--color-bg) 55%, transparent) 38%,
+      color-mix(in srgb, var(--color-bg) 18%, transparent) 58%,
+      transparent 78%
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-bg) 42%, transparent) 0%,
+      transparent 52%
+    );
 }
 
 .hero-copy {
   position: relative;
   z-index: 2;
-  padding-bottom: clamp(28px, 4vw, 56px);
+  padding-top: clamp(24px, 8vh, 80px);
+  padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 20px));
 }
 
 .hero-copy h1 {
   font-family: var(--font-heading);
   font-weight: 600;
-  font-size: clamp(38px, 7vw, 82px);
-  line-height: 1.02;
+  font-size: clamp(1.7rem, 6.4vw, 5.1rem);
+  line-height: 1.06;
   letter-spacing: -0.02em;
   margin: 0;
-  max-width: 17ch;
+  max-width: 16ch;
   text-wrap: pretty;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--color-bg) 55%, transparent);
 }
 
 .hero-copy p {
-  margin: clamp(20px, 2.4vw, 30px) 0 0;
-  font-size: clamp(18px, 1.4vw, 21px);
-  line-height: 1.5;
-  max-width: 46ch;
+  margin: clamp(12px, 2vw, 28px) 0 0;
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  line-height: 1.45;
+  max-width: 42ch;
   color: var(--color-neutral-800);
+}
+
+@media (max-width: 720px) {
+  .mast-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    gap: 2px;
+  }
+
+  .hero {
+    min-height: calc(100dvh - 8.75rem);
+  }
+
+  .hero-video video {
+    object-position: 55% 10%;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.55rem, 7.4vw, 2rem);
+    max-width: 14ch;
+  }
+}
+
+@media (min-width: 721px) {
+  .hero {
+    min-height: min(82vh, 780px);
+  }
+
+  .hero-video video {
+    object-position: 52% 8%;
+  }
+
+  .hero-copy {
+    padding-bottom: clamp(28px, 4vw, 56px);
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero {
+    min-height: 100%;
+  }
+
+  .hero-copy h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero-copy p {
+    display: none;
+  }
 }
 
 .sheet {
