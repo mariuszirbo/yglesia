@@ -2,7 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import handler from "./api/chat.js";
+import { handleChat } from "./lib/intake.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
@@ -74,21 +74,23 @@ const server = http.createServer(async (req, res) => {
     if (req.url.split("?")[0] === "/api/chat") {
       const chunks = [];
       for await (const chunk of req) chunks.push(chunk);
-      const webReq = new Request("http://127.0.0.1/api/chat", {
-        method: req.method,
-        headers: { "content-type": "application/json" },
-        body: ["POST", "PUT", "PATCH"].includes(req.method)
-          ? Buffer.concat(chunks)
-          : undefined,
-      });
-      const webRes = await handler(webReq);
-      const buf = Buffer.from(await webRes.arrayBuffer());
-      send(
-        res,
-        webRes.status,
-        { "Content-Type": webRes.headers.get("Content-Type") || "application/json" },
-        buf
-      );
+      if (req.method === "GET") {
+        send(res, 200, { "Content-Type": "application/json" }, JSON.stringify({ ok: true, service: "yglesia-intake" }));
+        return;
+      }
+      const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+      try {
+        const data = await handleChat(body);
+        send(res, 200, { "Content-Type": "application/json" }, JSON.stringify(data));
+      } catch (err) {
+        console.error("chat failed", err);
+        send(
+          res,
+          err.status || 500,
+          { "Content-Type": "application/json" },
+          JSON.stringify({ error: "That didn't go through." })
+        );
+      }
       return;
     }
 

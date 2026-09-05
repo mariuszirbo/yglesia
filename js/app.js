@@ -102,6 +102,7 @@ async function send(text) {
         sessionId: state.sessionId,
         turns: state.turns,
       }),
+      signal: AbortSignal.timeout(28000),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "request failed");
