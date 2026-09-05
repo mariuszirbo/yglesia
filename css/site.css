@@ -174,20 +174,13 @@ a:hover {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    linear-gradient(
-      to top,
-      var(--color-bg) 0%,
-      color-mix(in srgb, var(--color-bg) 92%, transparent) 18%,
-      color-mix(in srgb, var(--color-bg) 55%, transparent) 38%,
-      color-mix(in srgb, var(--color-bg) 18%, transparent) 58%,
-      transparent 78%
-    ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--color-bg) 42%, transparent) 0%,
-      transparent 52%
-    );
+  background: linear-gradient(
+    to top,
+    var(--color-bg) 0%,
+    color-mix(in srgb, var(--color-bg) 38%, transparent) 10%,
+    color-mix(in srgb, var(--color-bg) 12%, transparent) 28%,
+    transparent 48%
+  );
 }
 
 .hero-copy {
