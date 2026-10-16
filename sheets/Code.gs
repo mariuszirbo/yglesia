@@ -1,28 +1,42 @@
 /**
  * Yglesia intake logger
  *
- * 1. Create a Google Sheet (or open yours).
- * 2. Extensions → Apps Script. Delete the starter code. Paste this file.
- * 3. Set SHEETS_SECRET below to the same value as SHEETS_SECRET in Vercel / .env.local
- * 4. Deploy → New deployment → Type: Web app
+ * Writes to https://docs.google.com/spreadsheets/d/1zvz1KUXJ2atFsACpeVZIByk3dXGDYaUDeU_e-LhDIXE
+ * 1. Open that spreadsheet. Extensions → Apps Script. Paste this file.
+ * 2. Set SHEETS_SECRET to the same value as SHEETS_SECRET in Vercel / .env.local
+ * 3. Deploy → New deployment (or Manage deployments → New version)
  *    - Execute as: Me
  *    - Who has access: Anyone
- * 5. Copy the Web app URL into SHEETS_WEBHOOK_URL.
+ * 4. Copy the Web app URL into SHEETS_WEBHOOK_URL on Vercel.
  */
 
 const SHEETS_SECRET = "CHANGE_ME";
+const SHEET_ID = "1zvz1KUXJ2atFsACpeVZIByk3dXGDYaUDeU_e-LhDIXE";
 
 function doGet() {
-  return json({ ok: true, service: "yglesia-intake" });
+  return json({ ok: true, service: "yglesia-intake", sheet: SHEET_ID });
 }
 
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents || "{}");
-    if (!SHEETS_SECRET || data.secret !== SHEETS_SECRET) {
+    Logger.log(
+      "doPost type=" +
+        (data.type || "turn") +
+        " session=" +
+        (data.sessionId || "") +
+        " speaker=" +
+        (data.speaker || "")
+    );
+    if (!SHEETS_SECRET || SHEETS_SECRET === "CHANGE_ME") {
+      Logger.log("reject: SHEETS_SECRET is still CHANGE_ME");
+      return json({ ok: false, error: "secret not set in Apps Script" });
+    }
+    if (data.secret !== SHEETS_SECRET) {
+      Logger.log("reject: unauthorized");
       return json({ ok: false, error: "unauthorized" });
     }
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SHEET_ID);
     if (data.type === "lead") {
       appendRow(ss, "Leads", [
         [
@@ -70,8 +84,10 @@ function doPost(e) {
         ],
       ]);
     }
+    Logger.log("wrote " + (data.type === "lead" ? "Leads" : "Conversations"));
     return json({ ok: true });
   } catch (err) {
+    Logger.log("error " + String(err));
     return json({ ok: false, error: String(err) });
   }
 }

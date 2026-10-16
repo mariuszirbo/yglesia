@@ -1,4 +1,4 @@
-import { handleChat } from "../lib/intake.js";
+import { handleChat, sheetsConfigured } from "../lib/intake.js";
 
 function send(res, status, data) {
   res.statusCode = status;
@@ -29,7 +29,13 @@ function readBody(req) {
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    send(res, 200, { ok: true, service: "yglesia-intake" });
+    const payload = {
+      ok: true,
+      service: "yglesia-intake",
+      sheets: sheetsConfigured(),
+    };
+    console.log("[sheets] health", payload);
+    send(res, 200, payload);
     return;
   }
   if (req.method === "OPTIONS") {
