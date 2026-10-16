@@ -136,6 +136,14 @@ a:hover {
   color: var(--color-neutral-700);
 }
 
+.mast-meta a {
+  color: inherit;
+}
+
+.mast-meta a:hover {
+  color: var(--color-accent-700);
+}
+
 .mast-hair {
   height: 1px;
   background: var(--color-text);

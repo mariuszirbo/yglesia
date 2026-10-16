@@ -83,7 +83,7 @@ function render() {
     els.resultBook.textContent = "Book a call with " + state.result.person;
     const subject = "Yglesia — book a call";
     els.resultBook.href =
-      "mailto:hello@yglesia.com?subject=" + encodeURIComponent(subject);
+      "mailto:hello@yglesia.org?subject=" + encodeURIComponent(subject);
   }
 
   els.draft.value = state.draft;
