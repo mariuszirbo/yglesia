@@ -304,6 +304,7 @@ a:hover {
 .chat-frame .fail,
 .chat-frame .a,
 .chat-frame .ask-row input,
+.chat-frame .ask-row textarea,
 .chat-frame .tag,
 .chat-frame .btn,
 .chat-frame .result-why {
@@ -410,7 +411,8 @@ a:hover {
   padding-bottom: 8px;
 }
 
-.ask-row input {
+.ask-row input,
+.ask-row textarea {
   flex: 1 1 auto;
   min-width: 0;
   border: 0;
@@ -420,6 +422,12 @@ a:hover {
   color: var(--color-text);
   padding: 6px 0;
   outline: none;
+  resize: none;
+  line-height: 1.45;
+}
+
+.ask-row textarea.story-box {
+  min-height: 4.2em;
 }
 
 .chips {

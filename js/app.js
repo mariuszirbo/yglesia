@@ -1,10 +1,12 @@
-const OPENER =
-  "Which of these is you: shop owner, barista, church, or missionary?";
+const OPENER = "Which of these is closest to you?";
 const CHIPS = [
-  "I already run a coffee shop",
-  "I'm a barista who wants my own bar",
-  "I'm from a church",
-  "I'm a missionary abroad",
+  "I'm a barista who needs support",
+  "I'm a barista who needs prayer",
+  "I'm a barista who wants to start a coffee shop",
+  "I own a coffee shop and want it to become a mission",
+  "I'm from a church that wants a coffee shop",
+  "I'm with a mission that wants to open a coffee shop",
+  "I want to empower missionaries",
 ];
 
 function newSession() {
@@ -21,6 +23,7 @@ const state = {
   failed: false,
   chips: CHIPS,
   chipsOnly: true,
+  phase: "category",
 };
 
 const els = {
@@ -37,6 +40,12 @@ const els = {
   resultBook: document.getElementById("book"),
   fail: document.getElementById("fail"),
 };
+
+function placeholderFor() {
+  if (state.phase === "story") return "Tell us what’s going on";
+  if (state.phase === "contact") return "Type your answer";
+  return "Type your answer";
+}
 
 function render() {
   els.turns.innerHTML = state.turns
@@ -60,6 +69,8 @@ function render() {
 
   const showInput = asking && !state.chipsOnly;
   els.askRow.classList.toggle("hidden", !showInput);
+  els.draft.placeholder = placeholderFor();
+  els.draft.classList.toggle("story-box", state.phase === "story");
 
   if (asking && chips && chips.length) {
     els.chips.classList.remove("hidden");
@@ -117,10 +128,12 @@ async function send(text) {
     if (!res.ok) throw new Error(data.error || "request failed");
     if (data.done && data.result) {
       state.result = data.result;
+      state.phase = "done";
     } else if (data.question) {
       state.turns = [...state.turns, { q: data.question, a: "" }];
       state.chips = Array.isArray(data.chips) ? data.chips : null;
       state.chipsOnly = Boolean(data.chipsOnly);
+      state.phase = data.phase || "story";
     } else {
       throw new Error("empty reply");
     }
@@ -146,7 +159,7 @@ function escapeAttr(s) {
 
 document.getElementById("send").addEventListener("click", () => send());
 els.draft.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
+  if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     send();
   }
@@ -167,6 +180,7 @@ document.getElementById("reset").addEventListener("click", () => {
   state.failed = false;
   state.chips = CHIPS;
   state.chipsOnly = true;
+  state.phase = "category";
   render();
 });
 
