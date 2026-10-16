@@ -469,11 +469,11 @@ a:hover {
   max-width: 46ch;
 }
 
-.paths {
+.for {
   padding-top: clamp(70px, 11vw, 130px);
 }
 
-.paths h2 {
+.for h2 {
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: clamp(26px, 3.2vw, 40px);
@@ -483,25 +483,64 @@ a:hover {
   max-width: 20ch;
 }
 
-.path-grid {
+.for-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: clamp(28px, 4vw, 46px);
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 56px) clamp(28px, 5vw, 64px);
 }
 
-.path {
+.for-item {
   display: grid;
   gap: 10px;
   align-content: start;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-text);
 }
 
-.path p {
+.for-item p {
   margin: 0;
   font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.38;
+  max-width: 32ch;
+  text-wrap: pretty;
+}
+
+.aim {
+  padding-top: clamp(64px, 10vw, 110px);
+}
+
+.aim-plate {
+  padding: clamp(28px, 4.5vw, 52px) clamp(22px, 3.5vw, 48px) clamp(32px, 5vw, 56px);
+  border-top: 5px solid var(--color-text);
+  background: color-mix(in srgb, var(--color-surface) 78%, var(--color-bg));
+}
+
+.aim-line {
+  margin: 0 0 clamp(16px, 2.2vw, 24px);
+  font-family: var(--font-heading);
   font-weight: 600;
-  font-size: 22px;
-  line-height: 1.2;
-  max-width: 18ch;
+  font-size: clamp(26px, 4.2vw, 48px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  max-width: 16ch;
+  text-wrap: pretty;
+}
+
+.aim-because {
+  margin: 0;
+  font-family: var(--font-chat-say);
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.55;
+  max-width: 48ch;
+  color: var(--color-neutral-800);
+}
+
+@media (max-width: 720px) {
+  .for-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .site-foot {
