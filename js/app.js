@@ -1,4 +1,5 @@
-const OPENER = "Which of these is you: shop owner, barista, church, or missionary?";
+const OPENER =
+  "Which of these is you: shop owner, barista, church, or missionary?";
 const CHIPS = [
   "I already run a coffee shop",
   "I'm a barista who wants my own bar",
@@ -19,12 +20,14 @@ const state = {
   result: null,
   failed: false,
   chips: CHIPS,
+  chipsOnly: true,
 };
 
 const els = {
   turns: document.getElementById("turns"),
   thinking: document.getElementById("thinking"),
   ask: document.getElementById("ask"),
+  askRow: document.querySelector(".ask-row"),
   chips: document.getElementById("chips"),
   draft: document.getElementById("draft"),
   result: document.getElementById("result"),
@@ -48,13 +51,15 @@ function render() {
     .join("");
 
   const asking = !state.result && !state.thinking && !state.failed;
-  const first = state.turns.length === 1 && !state.turns[0].a;
-  const chips = first ? CHIPS : state.chips;
+  const chips = state.chips;
 
   els.thinking.classList.toggle("hidden", !state.thinking);
   els.ask.classList.toggle("hidden", !asking);
   els.result.classList.toggle("hidden", !state.result);
   els.fail.classList.toggle("hidden", !state.failed);
+
+  const showInput = asking && !state.chipsOnly;
+  els.askRow.classList.toggle("hidden", !showInput);
 
   if (asking && chips && chips.length) {
     els.chips.classList.remove("hidden");
@@ -82,10 +87,11 @@ function render() {
   }
 
   els.draft.value = state.draft;
+  if (showInput) els.draft.focus();
 }
 
 async function send(text) {
-  const answer = (text ?? state.draft).trim();
+  const answer = (text ?? (state.draft || els.draft.value)).trim();
   if (!answer || state.thinking) return;
   state.turns = state.turns.map((t, i) =>
     i === state.turns.length - 1 ? { ...t, a: answer } : t
@@ -94,6 +100,7 @@ async function send(text) {
   state.thinking = true;
   state.failed = false;
   state.chips = null;
+  state.chipsOnly = false;
   render();
 
   try {
@@ -113,6 +120,7 @@ async function send(text) {
     } else if (data.question) {
       state.turns = [...state.turns, { q: data.question, a: "" }];
       state.chips = Array.isArray(data.chips) ? data.chips : null;
+      state.chipsOnly = Boolean(data.chipsOnly);
     } else {
       throw new Error("empty reply");
     }
@@ -158,8 +166,8 @@ document.getElementById("reset").addEventListener("click", () => {
   state.result = null;
   state.failed = false;
   state.chips = CHIPS;
+  state.chipsOnly = true;
   render();
-  els.draft.focus();
 });
 
 const video = document.getElementById("hero-video");
