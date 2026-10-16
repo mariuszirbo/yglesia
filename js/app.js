@@ -125,6 +125,21 @@ async function send(text) {
       signal: AbortSignal.timeout(28000),
     });
     const data = await res.json().catch(() => ({}));
+    console.log("[yglesia] chat", {
+      status: res.status,
+      phase: data.phase,
+      done: data.done,
+      sheets: data.sheets,
+      question: data.question || null,
+    });
+    if (data.sheets && data.sheets.writes) {
+      for (const write of data.sheets.writes) {
+        if (write.ok) console.log("[yglesia] sheet saved", write);
+        else console.warn("[yglesia] sheet write failed", write);
+      }
+    } else {
+      console.warn("[yglesia] no sheets status on this reply");
+    }
     if (!res.ok) throw new Error(data.error || "request failed");
     if (data.done && data.result) {
       state.result = data.result;
@@ -138,7 +153,7 @@ async function send(text) {
       throw new Error("empty reply");
     }
   } catch (err) {
-    console.error(err);
+    console.error("[yglesia] chat failed", err);
     state.failed = true;
   }
   state.thinking = false;
@@ -192,5 +207,17 @@ if (video) {
   if (video.readyState >= 2) tryPlay();
   else video.addEventListener("canplay", tryPlay, { once: true });
 }
+
+fetch("/api/chat")
+  .then((res) => res.json())
+  .then((data) => {
+    console.log("[yglesia] api", data);
+    if (!data.sheets) {
+      console.warn(
+        "[yglesia] sheets: SHEETS_WEBHOOK_URL or SHEETS_SECRET is missing on the server"
+      );
+    }
+  })
+  .catch((err) => console.error("[yglesia] api check failed", err));
 
 render();

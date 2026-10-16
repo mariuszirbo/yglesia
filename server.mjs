@@ -2,7 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { handleChat } from "./lib/intake.js";
+import { handleChat, sheetsConfigured } from "./lib/intake.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
@@ -75,7 +75,18 @@ const server = http.createServer(async (req, res) => {
       const chunks = [];
       for await (const chunk of req) chunks.push(chunk);
       if (req.method === "GET") {
-        send(res, 200, { "Content-Type": "application/json" }, JSON.stringify({ ok: true, service: "yglesia-intake" }));
+        const payload = {
+          ok: true,
+          service: "yglesia-intake",
+          sheets: sheetsConfigured(),
+        };
+        console.log("[sheets] health", payload);
+        send(
+          res,
+          200,
+          { "Content-Type": "application/json" },
+          JSON.stringify(payload)
+        );
         return;
       }
       const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
